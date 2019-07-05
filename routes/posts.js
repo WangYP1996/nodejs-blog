@@ -4,7 +4,8 @@ const router = express.Router()
 const checkLogin = require('../middlewares/check').checkLogin
 
 router.get('/', function (req, res, next){
-  res.send('主页')
+  //4.7修改
+  res.render('posts')
 })
 // POST /posts/create 发表一篇文章
 router.post('/create', checkLogin, function (req, res, next) {

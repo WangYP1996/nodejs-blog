@@ -27,6 +27,11 @@ app.use(session({
 }))
 
 app.use(flash())
+//4.7新增代码：注册与文件上传
+app.use(require('express-formidable')({
+  uploadDir: path.join(__dirname, 'public/img'),
+  keepExtensions: true
+}))
 
 //4.5新增代码
 app.locals.blog = {
