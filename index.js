@@ -28,6 +28,18 @@ app.use(session({
 
 app.use(flash())
 
+//4.5新增代码
+app.locals.blog = {
+  title: pkg.name,
+  description: pkg.description
+}
+app.use(function (req, res, next) {
+  res.locals.user = req.session.user
+  res.locals.success = req.flash('success').toString()
+  res.locals.error = req.flash('error').toString()
+  next()
+})
+
 routes(app)
 
 app.listen(config.port, function () {
