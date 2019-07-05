@@ -50,3 +50,9 @@ routes(app)
 app.listen(config.port, function () {
   console.log(`${pkg.name} listening on port ${config.port}`)
 })
+//404 page
+app.use(function (err, req, res, next) {
+  console.error(err)
+  req.flash('error', err.message)
+  res.redirect('/posts')
+})
