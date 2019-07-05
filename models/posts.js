@@ -1,6 +1,30 @@
 const marked = require('marked')
 const Post = require('../lib/mongo').Post
 
+//4.10 评论 新增
+const CommentModel = require('./comments')
+
+// 给 post 添加留言数 commentsCount
+Post.plugin('addCommentsCount', {
+  afterFind: function (posts) {
+    return Promise.all(posts.map(function (post) {
+      return CommentModel.getCommentsCount(post._id).then(function (commentsCount) {
+        post.commentsCount = commentsCount
+        return post
+      })
+    }))
+  },
+  afterFindOne: function (post) {
+    if (post) {
+      return CommentModel.getCommentsCount(post._id).then(function (count) {
+        post.commentsCount = count
+        return post
+      })
+    }
+    return post
+  }
+})
+
 // 将 post 的 content 从 markdown 转换成 html
 Post.plugin('contentToHtml', {
   afterFind: function (posts) {
@@ -68,6 +92,15 @@ module.exports = {
 
   // 通过文章 id 删除一篇文章
   delPostById: function delPostById (postId) {
-    return Post.deleteOne({ _id: postId }).exec()
+    //4.10修改
+    //return Post.deleteOne({ _id: postId }).exec()
+    return Post.deleteOne({ author: author, _id: postId })
+    .exec()
+    .then(function (res) {
+      // 文章删除后，再删除该文章下的所有留言
+      if (res.result.ok && res.result.n > 0) {
+        return CommentModel.delCommentsByPostId(postId)
+      }
+    })
   }
 }
